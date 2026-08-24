@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Main {
 
-    // Reads records directly from the database 
+    // Reads records directly from the database without safety/cleanup blocks
     public static Graph loadGraphFromDatabase(String url, String user, String pass, int totalNodes) throws Exception {
         Graph graph = new Graph(totalNodes);
         
