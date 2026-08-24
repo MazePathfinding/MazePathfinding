@@ -7,7 +7,11 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
-import modele.Grille;
+import javax.swing.Timer;
+import modele.Direction;
+import modele.Labyrinthe;
+import modele.MoteurJeu;
+import modele.ResultatRecherche;
 
 /**
  *
@@ -15,30 +19,52 @@ import modele.Grille;
  */
 public class PanneauJeu extends JPanel {
 
-    // Taille d'une case du labyrinthe en pixels
+    // Taille d'une case en pixels
     private final int CELL_SIZE = 30;
 
-    // Grille contenant les données du labyrinthe
-    private Grille grille = new Grille();
+    // Moteur du jeu
+    private MoteurJeu moteurJeu;
 
-    // Dimensions récupérées depuis la classe Grille
-    private final int ROWS = grille.getRows();
-    private final int COL = grille.getCols();
+    // Labyrinthe récupéré depuis le moteur
+    private Labyrinthe labyrinthe;
 
-    // Tableau du labyrinthe : 0 = chemin libre, 1 = mur
-    private int[][] maze = grille.getMaze();
+    // Dimensions du labyrinthe
+    private int ROWS;
+    private int COL;
 
-    // Position du départ et de l'arrivée
-    private Point start = grille.getStart();
-    private Point goal = grille.getGoal();
+    // true = mur, false = passage
+    private boolean[][] maze;
 
-    // Position actuelle du personnage
-    private Point player = grille.getStart();
+    // Point de départ
+    private Point start;
 
-    // Chemin trouvé plus tard par un algorithme
+    // Point d'arrivée
+    private Point goal;
+
+    // Chemin final trouvé par l'algorithme
     private List<Point> path = new ArrayList<>();
 
-    public PanneauJeu() {
+    // Nœuds explorés déjà affichés
+    private List<Point> exploredNodes = new ArrayList<>();
+
+    public PanneauJeu(MoteurJeu moteurJeu) {
+
+        // Récupération du moteur
+        this.moteurJeu = moteurJeu;
+
+        // Récupération du labyrinthe
+        this.labyrinthe = moteurJeu.getLabyrinthe();
+
+        // Récupération des dimensions
+        this.ROWS = labyrinthe.getHauteur();
+        this.COL = labyrinthe.getLargeur();
+
+        // Récupération des murs
+        this.maze = labyrinthe.getObstacles();
+
+        // Récupération du départ et de l'arrivée
+        this.start = labyrinthe.getEntree();
+        this.goal = labyrinthe.getSortie();
 
         // Calcul de la taille du panneau
         int width = COL * CELL_SIZE;
@@ -51,7 +77,7 @@ public class PanneauJeu extends JPanel {
         this.setBackground(Color.WHITE);
     }
 
-    // Méthode utilisée par Swing pour dessiner le panneau
+    // Dessine tous les éléments du jeu
     @Override
     protected void paintComponent(Graphics g) {
 
@@ -59,10 +85,10 @@ public class PanneauJeu extends JPanel {
 
         Graphics2D g2 = (Graphics2D) g;
 
-        // Dessin des différents éléments du jeu
         drawMaze(g2);
-        drawStartAndGoal(g2);
+        drawExploredNodes(g2);
         drawPath(g2);
+        drawStartAndGoal(g2);
         drawPlayer(g2);
         drawGrid(g2);
     }
@@ -77,8 +103,7 @@ public class PanneauJeu extends JPanel {
                 int x = col * CELL_SIZE;
                 int y = row * CELL_SIZE;
 
-                // Une case contenant 1 représente un mur
-                if (maze[row][col] == 1) {
+                if (maze[row][col]) {
 
                     g2.setColor(Color.DARK_GRAY);
 
@@ -93,10 +118,48 @@ public class PanneauJeu extends JPanel {
         }
     }
 
-    // Dessine le point de départ et le point d'arrivée
+    // Dessine les nœuds explorés par l'algorithme
+    private void drawExploredNodes(Graphics2D g2) {
+
+        g2.setColor(Color.CYAN);
+
+        for (Point p : exploredNodes) {
+
+            int x = p.x * CELL_SIZE;
+            int y = p.y * CELL_SIZE;
+
+            g2.fillRect(
+                    x + 7,
+                    y + 7,
+                    CELL_SIZE - 14,
+                    CELL_SIZE - 14
+            );
+        }
+    }
+
+    // Dessine le chemin final
+    private void drawPath(Graphics2D g2) {
+
+        g2.setColor(Color.YELLOW);
+
+        for (Point p : path) {
+
+            int x = p.x * CELL_SIZE;
+            int y = p.y * CELL_SIZE;
+
+            g2.fillRect(
+                    x + 5,
+                    y + 5,
+                    CELL_SIZE - 10,
+                    CELL_SIZE - 10
+            );
+        }
+    }
+
+    // Dessine le départ et l'arrivée
     private void drawStartAndGoal(Graphics2D g2) {
 
-        // Position du départ
+        // Départ
         int startX = start.x * CELL_SIZE;
         int startY = start.y * CELL_SIZE;
 
@@ -109,7 +172,7 @@ public class PanneauJeu extends JPanel {
                 CELL_SIZE
         );
 
-        // Position de l'arrivée
+        // Arrivée
         int goalX = goal.x * CELL_SIZE;
         int goalY = goal.y * CELL_SIZE;
 
@@ -123,35 +186,17 @@ public class PanneauJeu extends JPanel {
         );
     }
 
-    // Dessine le chemin trouvé par l'algorithme
-    private void drawPath(Graphics2D g2) {
-
-        g2.setColor(Color.YELLOW);
-
-        for (Point p : path) {
-
-            int x = p.x * CELL_SIZE;
-            int y = p.y * CELL_SIZE;
-
-            // Le chemin est dessiné légèrement plus petit que la case
-            g2.fillRect(
-                    x + 5,
-                    y + 5,
-                    CELL_SIZE - 10,
-                    CELL_SIZE - 10
-            );
-        }
-    }
-
-    // Dessine le personnage
+    // Dessine le joueur
     private void drawPlayer(Graphics2D g2) {
+
+        // Position actuelle récupérée depuis le backend
+        Point player = moteurJeu.getJoueur().getPosition();
 
         int x = player.x * CELL_SIZE;
         int y = player.y * CELL_SIZE;
 
         g2.setColor(Color.BLUE);
 
-        // Le personnage est représenté par un cercle
         g2.fillOval(
                 x + 5,
                 y + 5,
@@ -192,21 +237,139 @@ public class PanneauJeu extends JPanel {
         }
     }
 
-    // Reçoit et affiche le chemin calculé par le backend
+    // Reçoit le chemin final
     public void setPath(List<Point> newPath) {
 
         this.path = newPath;
 
-        // Redessine le panneau
         repaint();
     }
 
-    // Met à jour la position du personnage
-    public void setPlayer(Point newPosition) {
+    // Reçoit les nœuds explorés
+    public void setExploredNodes(List<Point> newExploredNodes) {
 
-        this.player = newPosition;
+        this.exploredNodes = newExploredNodes;
 
-        // Redessine le panneau
+        repaint();
+    }
+
+    // Anime le déplacement du joueur sur le chemin final
+    public void animerChemin(List<Point> chemin) {
+
+        // Le premier point correspond déjà à la position de départ
+        final int[] index = {1};
+
+        Timer timer = new Timer(200, e -> {
+
+            // Arrête l'animation lorsque le chemin est terminé
+            if (index[0] >= chemin.size()) {
+
+                ((Timer) e.getSource()).stop();
+                return;
+            }
+
+            // Position actuelle du joueur
+            Point positionActuelle = moteurJeu.getJoueur().getPosition();
+
+            // Prochaine position à atteindre
+            Point prochainePosition = chemin.get(index[0]);
+
+            // Calcul du déplacement
+            int dx = prochainePosition.x - positionActuelle.x;
+            int dy = prochainePosition.y - positionActuelle.y;
+
+            Direction direction = null;
+
+            // Détermine la direction à suivre
+            if (dx == 1) {
+
+                direction = Direction.DROITE;
+
+            } else if (dx == -1) {
+
+                direction = Direction.GAUCHE;
+
+            } else if (dy == 1) {
+
+                direction = Direction.BAS;
+
+            } else if (dy == -1) {
+
+                direction = Direction.HAUT;
+            }
+
+            // Demande au backend de déplacer le joueur
+            if (direction != null) {
+                moteurJeu.traiterDeplacement(direction);
+            }
+
+            // Redessine le joueur
+            repaint();
+
+            index[0]++;
+        });
+
+        timer.start();
+    }
+
+    // Anime le déplacement du joueur sur le chemin final
+    public void animerRecherche(
+            List<Point> noeudsExplores,
+            List<Point> chemin,
+            ResultatRecherche resultat,
+            FenetreJeu fenetre
+    ) {
+
+        exploredNodes.clear();
+        path.clear();
+
+        final int[] index = {0};
+
+        Timer timer = new Timer(50, e -> {
+
+            if (index[0] >= noeudsExplores.size()) {
+
+                ((Timer) e.getSource()).stop();
+
+                // Affiche maintenant le chemin final
+                setPath(chemin);
+
+                // Affiche les statistiques seulement après la recherche
+                fenetre.setAlgorithme("Dijkstra");
+                fenetre.setNoeudsExplores(
+                        resultat.getNoeudsExplores()
+                );
+                fenetre.setLongueurChemin(
+                        resultat.getLongueurChemin()
+                );
+                fenetre.setCout(
+                        resultat.getCout()
+                );
+                fenetre.setTempsExecution(
+                        resultat.getTempsExecutionMs()
+                );
+
+                // Déplace ensuite le joueur
+                animerChemin(chemin);
+
+                return;
+            }
+
+            exploredNodes.add(
+                    new Point(noeudsExplores.get(index[0]))
+            );
+
+            repaint();
+
+            index[0]++;
+        });
+
+        timer.start();
+    }
+
+    // Redessine le panneau
+    public void actualiser() {
+
         repaint();
     }
 }
