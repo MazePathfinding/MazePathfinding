@@ -215,12 +215,7 @@ public class PanneauJeu extends JPanel {
 
             int x = col * CELL_SIZE;
 
-            g2.drawLine(
-                    x,
-                    0,
-                    x,
-                    ROWS * CELL_SIZE
-            );
+            g2.drawLine(x, 0, x, ROWS * CELL_SIZE);
         }
 
         // Lignes horizontales
@@ -228,12 +223,7 @@ public class PanneauJeu extends JPanel {
 
             int y = row * CELL_SIZE;
 
-            g2.drawLine(
-                    0,
-                    y,
-                    COL * CELL_SIZE,
-                    y
-            );
+            g2.drawLine(0, y, COL * CELL_SIZE, y);
         }
     }
 
@@ -355,9 +345,7 @@ public class PanneauJeu extends JPanel {
                 return;
             }
 
-            exploredNodes.add(
-                    new Point(noeudsExplores.get(index[0]))
-            );
+            exploredNodes.add(new Point(noeudsExplores.get(index[0])));
 
             repaint();
 
