@@ -66,7 +66,7 @@ public class frame extends JFrame {
          
          ResultatRecherche resultat = moteurJeu.obtenirIndice();
          
-         //Animation de la recherch
+         //Animation de la recherche
          panneauJeu.animerRecherche(
                  resultat.getOrdreExploration(), 
                  resultat.getChemin(), 
