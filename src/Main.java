@@ -7,6 +7,7 @@
  *
  * @author udm
  */
+import javax.swing.SwingUtilities;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,8 +15,7 @@ import java.sql.Statement;
 import java.util.List;
 
 public class Main {
-
-    // Reads records directly from the database without safety/cleanup blocks
+    
     public static Graph loadGraphFromDatabase(String url, String user, String pass, int totalNodes) throws Exception {
         Graph graph = new Graph(totalNodes);
         
@@ -35,22 +35,25 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        String dbUrl = "https...chaimae"; 
-        String user = "username:chaimea";
-        String pass = "password";
+        Labyrinthe labyrinthe = new Labyrinthe();
+        MoteurJeu moteurJeu = new MoteurJeu(labyrinthe);
+        
+        boolean[][] grid = moteurJeu.getLabyrinthe().getGrille();
+        int cols = grid[0].length;
 
-        int totalVertices = 5;
+        Graph graphFromMaze = GraphToLabyrinthe.convertToGraph(grid);
 
-        Graph graph = loadGraphFromDatabase(dbUrl, user, pass, totalVertices);
+        int startNode = 0;
+        DijkstraAlgorithm solver = new DijkstraAlgorithm();
+        List<Integer> nodePath = solver.findShortestPath(graphFromMaze, startNode);
 
-        //run Dijkstra
-        int sourceNode = 0;
-        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm();
-        List<Integer> distances = dijkstra.findShortestPath(graph, sourceNode);
+        List<int[]> mazePath = GraphToLabyrinthe.convertToMazePath(nodePath, cols);
 
-        System.out.println("Shortest distances from source node " + sourceNode + ":");
-        for (int i = 0; i < distances.size(); i++) {
-            System.out.println("Node " + i + " -> Distance: " + distances.get(i));
-        }
+        System.out.println("Path solved! Total steps: " + mazePath.size());
+
+        SwingUtilities.invokeLater(() -> {
+            FenetreJeu fenetre = new FenetreJeu(moteurJeu);
+            fenetre.setVisible(true);
+        });
     }
 }

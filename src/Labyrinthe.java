@@ -1,5 +1,3 @@
-package modele;
-
 import java.awt.Point;
 
 /**
@@ -79,5 +77,9 @@ public class Labyrinthe {
     // Retourne la hauteur du labyrinthe
     public int getHauteur() {
         return grille.length;
+    }
+
+    public boolean[][] getGrille() {
+    return grille;
     }
 }

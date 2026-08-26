@@ -1,12 +1,10 @@
-package vue;
-
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import modele.MoteurJeu;
+import javax.swing.JFrame;
 
 /**
  *
@@ -15,6 +13,7 @@ import modele.MoteurJeu;
 public class FenetreJeu extends JFrame {
 
     private PanneauJeu panneauJeu;
+    private Graph graph;
 
     // Informations sur l'algorithme
     private JLabel labelAlgorithme;
