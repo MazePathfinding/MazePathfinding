@@ -1,5 +1,3 @@
-package modele;
-
 import java.awt.Point;
 
 public class Joueur {

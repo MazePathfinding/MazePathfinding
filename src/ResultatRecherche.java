@@ -1,5 +1,3 @@
-package modele;
-
 import java.awt.Point;
 import java.util.List;
 
@@ -10,7 +8,8 @@ public class ResultatRecherche { // Affiche le resultat final après le calcul d
     private final long tempsExecutionNanoSecondes;
     private final int cout;                       // -1 si aucun chemin trouvé
 
-    public ResultatRecherche(List<Point> chemin, List<Point> ordreExploration, long tempsExecutionNanoSecondes, int cout) {
+    public ResultatRecherche(List<Point> chemin, List<Point> ordreExploration,
+            long tempsExecutionNanoSecondes, int cout) {
         this.chemin = chemin;
         this.ordreExploration = ordreExploration;
         this.tempsExecutionNanoSecondes = tempsExecutionNanoSecondes;

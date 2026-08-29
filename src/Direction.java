@@ -1,5 +1,3 @@
-package modele;
-
 /**
  * Les 4 directions de déplacement possibles dans le labyrinthe.
  * Chaque direction porte son propre décalage (dx, dy) pour simplifier

@@ -1,5 +1,3 @@
-package vue;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -8,11 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import modele.Direction;
-import modele.Labyrinthe;
-import modele.MoteurJeu;
-import modele.ResultatRecherche;
-
 /**
  *
  * @author fenit
