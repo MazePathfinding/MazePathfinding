@@ -20,30 +20,29 @@ public class Labyrinthe {
     // Constructeur
     public Labyrinthe() {
 
-        // Grille 15 x 20
+        // Grille
         this.grille = new boolean[][]{
-            {true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true},
-            {true,false,false,false,false,false,true,false,false,false,false,false,false,true,false,false,false,false,false,true},
-            {true,true,true,true,true,false,true,false,true,true,true,true,false,true,false,true,true,true,false,true},
-            {true,false,false,false,true,false,true,false,true,false,false,true,false,false,false,true,false,false,false,true},
-            {true,false,true,false,true,false,true,false,true,false,true,true,true,true,false,true,false,true,true,true},
-            {true,false,true,false,false,false,false,false,true,false,false,false,false,true,false,true,false,false,false,true},
-            {true,false,true,true,true,true,true,false,true,true,true,true,false,true,false,true,true,true,false,true},
-            {true,false,false,false,false,false,true,false,false,false,false,true,false,false,false,false,false,true,false,true},
-            {true,true,true,true,true,false,true,true,true,true,false,true,true,true,true,true,false,true,false,true},
-            {true,false,false,false,true,false,false,false,false,true,false,false,false,false,false,true,false,false,false,true},
-            {true,false,true,false,true,true,true,true,false,true,true,true,true,true,false,true,true,true,false,true},
-            {true,false,true,false,false,false,false,true,false,false,false,false,false,true,false,false,false,true,false,true},
-            {true,false,true,true,true,true,false,true,true,true,true,true,false,true,true,true,false,true,false,true},
-            {true,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,true},
-            {true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true}
+            {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true},
+            {true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true},
+            {true, true, true, false, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, false, true, true, true},
+            {true, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true, false, false, false, false, false, false, true},
+            {true, true, false, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true, true, false, true, true, true, true},
+            {true, false, false, false, false, false, false, false, false, false, true, true, true, false, false, false, false, false, false, false, false, false, false, true},
+            {true, false, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true, false, true, true, true, false, true, true},
+            {true, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, true},
+            {true, true, true, false, true, true, true, true, true, true, true, false, true, true, true, false, true, true, true, false, true, true, true, true},
+            {true, false, false, false, false, false, true, true, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false, true},
+            {true, true, false, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true, true, false, true, true},
+            {true, false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, false, false, false, true},
+            {true, false, true, true, false, true, true, true, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true},
+            {true, false, false, false, false, false, true, true, false, true, true, true, false, false, false, false, false, false, false, true, false, false, false, true},
+            {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
         };
 
         // Position du départ
         this.entree = new Point(1, 1);
-
         // Position de l'arrivée
-        this.sortie = new Point(18, 13);
+        this.sortie = new Point(22, 11);
     }
 
     // Vérifie si une case est un mur ou hors de la grille

@@ -1,12 +1,15 @@
 package modele;
 
 import algo.Dijkstra;
+// supprimer a cause de conflict(SADC)<<<<<<< HEAD
 import algo.AStar;
 import algo.RechercheAveugle;
-import java.awt.Point;
-import java.util.List;
+//SADC import java.awt.Point;
+//SADC import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+//SADC =======
+// SADC >>>>>>> origin/SCRUM-46-amélioration_interface
 
 public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l'état du jeu
 
