@@ -1,10 +1,6 @@
 package modele;
 
 import algo.Dijkstra;
-import modele.ResultatRecherche;
-
-import java.awt.Point;
-import java.util.List;
 
 public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l'état du jeu
 
