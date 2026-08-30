@@ -1,0 +1,22 @@
+
+creeate table2 
+CREATE TABLE IF NOT EXISTS recherche_historique (
+    id                  SERIAL PRIMARY KEY,
+    algorithme          TEXT NOT NULL,
+    chemin              TEXT NOT NULL,
+    longueur_chemin     INTEGER NOT NULL,
+    cout                INTEGER NOT NULL,
+    temps_execution_ms  REAL NOT NULL,
+    noeuds_explores     INTEGER NOT NULL,
+    date_recherche      TEXT NOT NULL
+);
+ 
+CREATE INDEX IF NOT EXISTS idx_recherche_algorithme ON recherche_historique (algorithme);
+
+
+table1
+CREATE DATABASE mazepathfinding;
+
+CREATE USER maze_user WITH PASSWORD 'un_mot_de_passe_a_vous';
+
+GRANT ALL PRIVILEGES ON DATABASE mazepathfinding TO maze_user;
