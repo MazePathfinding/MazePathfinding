@@ -6,6 +6,7 @@ import java.util.List;
 
 public class HistoriqueRecherche {
 
+//    
     private final int id;
     private final String algorithme;      
     private final List<Point> chemin;     
