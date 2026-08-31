@@ -113,7 +113,6 @@ public class DatabaseManager {
         return historique;
     }
 
-    \
     public static Map<String, HistoriqueRecherche> recupererDernierParAlgorithme() {
         Map<String, HistoriqueRecherche> dernier = new LinkedHashMap<>();
         String sql = "SELECT * FROM recherche_historique rh "
