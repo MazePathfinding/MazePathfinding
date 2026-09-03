@@ -5,6 +5,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import modele.MoteurJeu;
+import modele.ResultatRecherche;
 
 /**
  *
@@ -14,8 +16,8 @@ public class PanneauControles extends JPanel {
     private JButton boutonDijkstra;
     private JButton boutonAStar;
     private JButton boutonBFS;
-
-    public PanneauControles(PanneauJeu panneauJeu) {
+    private MoteurJeu.Algorithme algorithmeSelectionne = MoteurJeu.Algorithme.DIJKSTRA;
+    public PanneauControles(PanneauJeu panneauJeu, FenetreJeu fenetre) {
         // Configuration du panneau gauche
         this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
         this.setBackground(new Color(15, 24, 40));
@@ -71,6 +73,7 @@ public class PanneauControles extends JPanel {
 
         // Sélection de Dijkstra
         boutonDijkstra.addActionListener(e -> {
+            algorithmeSelectionne = MoteurJeu.Algorithme.DIJKSTRA;
             boutonDijkstra.setForeground(couleurDijkstra);
             boutonAStar.setForeground(Color.WHITE);
             boutonBFS.setForeground(Color.WHITE);
@@ -84,6 +87,7 @@ public class PanneauControles extends JPanel {
 
         // Sélection de A*
         boutonAStar.addActionListener(e -> {
+            algorithmeSelectionne = MoteurJeu.Algorithme.A_STAR;
             boutonDijkstra.setForeground(Color.WHITE);
             boutonAStar.setForeground(couleurAStar);
             boutonBFS.setForeground(Color.WHITE);
@@ -97,6 +101,7 @@ public class PanneauControles extends JPanel {
 
         // Sélection de BFS
         boutonBFS.addActionListener(e -> {
+            algorithmeSelectionne = MoteurJeu.Algorithme.RECHERCHE_AVEUGLE;
             boutonDijkstra.setForeground(Color.WHITE);
             boutonAStar.setForeground(Color.WHITE);
             boutonBFS.setForeground(couleurBFS);
@@ -251,7 +256,31 @@ public class PanneauControles extends JPanel {
 
         // Boutons principaux de l'interface
         javax.swing.JButton boutonLancer = new javax.swing.JButton("▶  Lancer");
+        boutonLancer.addActionListener(e -> {
+
+            MoteurJeu moteurJeu = panneauJeu.getMoteurJeu();
+            
+            fenetre.getPanneauResultats().setAlgorithmeActuel(algorithmeSelectionne);
+            
+            ResultatRecherche resultat =
+                moteurJeu.obtenirIndice(algorithmeSelectionne);
+
+            panneauJeu.animerRecherche(
+                    resultat.getOrdreExploration(),
+                    resultat.getChemin(),
+                    resultat,
+                    fenetre
+            );
+    });
+        
         javax.swing.JButton boutonReinitialiser = new javax.swing.JButton("↻  Réinitialiser");
+        boutonReinitialiser.addActionListener(e -> {
+            panneauJeu.getMoteurJeu().reinitialiser();
+            panneauJeu.setExploredNodes(new java.util.ArrayList<>());
+            panneauJeu.setPath(new java.util.ArrayList<>());
+            panneauJeu.repaint();
+        });
+        
 
         boutonLancer.setBackground(new Color(30, 110, 210));
         boutonLancer.setForeground(Color.WHITE);

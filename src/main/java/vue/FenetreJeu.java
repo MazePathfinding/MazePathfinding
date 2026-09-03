@@ -31,7 +31,7 @@ public class FenetreJeu extends JFrame {
         panneauJeu = new PanneauJeu(moteurJeu);
 
         // Création du panneau gauche
-        PanneauControles panneauGauche = new PanneauControles(panneauJeu);
+        PanneauControles panneauGauche = new PanneauControles(panneauJeu, this);
 
         // Panneau central : contient le titre et le labyrinthe
         JPanel panneauCentre = new JPanel(new BorderLayout());
@@ -75,6 +75,12 @@ public class FenetreJeu extends JFrame {
     public PanneauJeu getPanneauJeu() {
         return panneauJeu;
     }
+
+    public PanneauResultats getPanneauResultats() {
+        return panneauResultats;
+    }
+    
+    
 
     // Modifie le nombre de noeuds explorés
     public void setNoeudsExplores(int noeuds) {

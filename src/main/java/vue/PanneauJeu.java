@@ -57,6 +57,7 @@ public class PanneauJeu extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(width, height));
         this.setBackground(COULEUR_FOND);
     }
+    
     // Dessine tous les éléments du jeu
     @Override
     protected void paintComponent(Graphics g) {
@@ -291,4 +292,9 @@ public class PanneauJeu extends JPanel {
         this.couleurExploration = couleur;
         repaint();
     }
+
+    public MoteurJeu getMoteurJeu() {
+        return moteurJeu;
+    }
+    
 }

@@ -15,15 +15,8 @@ public class Main {
             Labyrinthe labyrinthe = new Labyrinthe();
             MoteurJeu moteurJeu = new MoteurJeu(labyrinthe);
 
-            // Ouverture directe de l'interface principale
-            FenetreJeu fenetre = new FenetreJeu(moteurJeu);
-            PanneauJeu panneauJeu = fenetre.getPanneauJeu();
 
-            // Lance actuellement la recherche Dijkstra
-            ResultatRecherche resultat = moteurJeu.obtenirIndice();
-
-            // Affiche l'animation de la recherche
-            panneauJeu.animerRecherche(resultat.getOrdreExploration(),resultat.getChemin(),resultat,fenetre);
+            new FenetreJeu(moteurJeu);
         });
     }
 }

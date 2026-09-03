@@ -51,11 +51,23 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
     public ResultatRecherche obtenirIndice(Algorithme algo) {
         switch (algo) {
             case A_STAR:
-                return AStar.calculerChemin(labyrinthe.getObstacles(), joueur.getPosition(), labyrinthe.getSortie());
+                return AStar.calculerChemin(
+                        labyrinthe.getObstacles(),
+                        joueur.getPosition(), 
+                        labyrinthe.getSortie()
+                );
             case RECHERCHE_AVEUGLE:
-                return RechercheAveugle.calculerChemin(labyrinthe.getObstacles(), joueur.getPosition(), labyrinthe.getSortie());
+                return RechercheAveugle.calculerChemin(
+                        labyrinthe.getObstacles(), 
+                        joueur.getPosition(), 
+                        labyrinthe.getSortie()
+                );
             default:
-                return Dijkstra.calculerChemin(labyrinthe.getObstacles(), joueur.getPosition(), labyrinthe.getSortie());
+                return Dijkstra.calculerChemin(
+                        labyrinthe.getObstacles(), 
+                        joueur.getPosition(), 
+                        labyrinthe.getSortie()
+                );
         }
     }
 
@@ -66,7 +78,12 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
         resultats.put(Algorithme.RECHERCHE_AVEUGLE, obtenirIndice(Algorithme.RECHERCHE_AVEUGLE));
         return resultats;
     }
-
+    
+    public void reinitialiser() {
+        joueur.reinitialiser();
+        etat = Etat.EN_COURS;
+    }
+    
     public Etat getEtat() {
         return etat;
     }

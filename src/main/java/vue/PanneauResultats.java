@@ -5,6 +5,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import modele.MoteurJeu;
 
 /**
  *
@@ -30,6 +31,7 @@ public class PanneauResultats extends JPanel {
     private JLabel comparaisonDijkstraCout;
     private JLabel comparaisonDijkstraNoeuds;
     private JLabel comparaisonDijkstraTemps;
+    private MoteurJeu.Algorithme algorithmeActuel;
 
     public PanneauResultats() {
         // Configuration du panneau droit
@@ -189,25 +191,52 @@ public class PanneauResultats extends JPanel {
 
     // Met à jour le nombre de noeuds explorés 
     public void setNoeudsExplores(int noeuds) {
+         if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
         dijkstraExplores.setText(String.valueOf(noeuds));
         comparaisonDijkstraNoeuds.setText(String.valueOf(noeuds));
+          }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+              aStarExplores.setText(String.valueOf(noeuds));
+          }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+               bfsExplores.setText(String.valueOf(noeuds));
+          }
     }
-
     // Met à jour la longueur du chemin trouvé 
     public void setLongueurChemin(int longueur) {
+        if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
         dijkstraLongueur.setText(longueur + " noeuds");
+    }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+        aStarLongueur.setText(longueur + " noeuds");
+    }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+         bfsLongueur.setText(longueur + " noeuds");
     }
+  }
 
     // Met à jour le coût total du chemin trouvé 
     public void setCout(double cout) {
+        if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
         dijkstraCout.setText(String.valueOf(cout));
         comparaisonDijkstraCout.setText(String.valueOf(cout));
+    }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+        aStarCout.setText(String.valueOf(cout));
+    }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+         bfsCout.setText(String.valueOf(cout));
     }
+   }
 
     // Met à jour le temps d'exécution 
     public void setTempsExecution(double temps) {
         String tempsTexte = String.format("%.2f ms", temps);
+        if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
         dijkstraTemps.setText(tempsTexte);
         comparaisonDijkstraTemps.setText(tempsTexte);
+     }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+          aStarTemps.setText(tempsTexte);
+     }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+         bfsTemps.setText(tempsTexte);
+     }
     }
+    public void setAlgorithmeActuel(MoteurJeu.Algorithme algorithmeActuel) {
+        this.algorithmeActuel = algorithmeActuel;
+    }
+    
 }
