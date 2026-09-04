@@ -1,15 +1,10 @@
 package modele;
 
 import algo.Dijkstra;
-// supprimer a cause de conflict(SADC)<<<<<<< HEAD
 import algo.AStar;
 import algo.RechercheAveugle;
-//SADC import java.awt.Point;
-//SADC import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
-//SADC =======
-// SADC >>>>>>> origin/SCRUM-46-amélioration_interface
+import java.util.Map;
 
 public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l'état du jeu
 
@@ -49,26 +44,36 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
     }
 
     public ResultatRecherche obtenirIndice(Algorithme algo) {
+        String nomAlgorithme;
+        ResultatRecherche resultat;
         switch (algo) {
             case A_STAR:
-                return AStar.calculerChemin(
-                        labyrinthe.getObstacles(),
-                        joueur.getPosition(), 
-                        labyrinthe.getSortie()
+                resultat = AStar.calculerChemin(
+                    labyrinthe.getObstacles(),
+                    joueur.getPosition(),
+                    labyrinthe.getSortie(),
                 );
+                nomAlgorithme = "A*";
+                break;
             case RECHERCHE_AVEUGLE:
-                return RechercheAveugle.calculerChemin(
-                        labyrinthe.getObstacles(), 
-                        joueur.getPosition(), 
-                        labyrinthe.getSortie()
+                resultat = RechercheAveugle.calculerChemin(
+                    labyrinthe.getObstacles(),
+                    joueur.getPosition(),
+                    labyrinthe.getSortie()
                 );
+                nomAlgorithme = "Recherche aveugle";
+                break;
             default:
-                return Dijkstra.calculerChemin(
-                        labyrinthe.getObstacles(), 
-                        joueur.getPosition(), 
-                        labyrinthe.getSortie()
+                resultat = Dijkstra.calculerChemin(
+                    labyrinthe.getObstacles(),
+                    joueur.getPosition(),
+                    labyrinthe.getSortie()
                 );
+                nomAlgorithme = "Dijkstra";
+                break;
         }
+        DatabaseManager.enregistrerResultat(nomAlgorithme, resultat);
+        return resultat;
     }
 
     public Map<Algorithme, ResultatRecherche> comparerAlgorithmes() {
@@ -78,12 +83,12 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
         resultats.put(Algorithme.RECHERCHE_AVEUGLE, obtenirIndice(Algorithme.RECHERCHE_AVEUGLE));
         return resultats;
     }
-    
+
     public void reinitialiser() {
         joueur.reinitialiser();
         etat = Etat.EN_COURS;
     }
-    
+
     public Etat getEtat() {
         return etat;
     }
