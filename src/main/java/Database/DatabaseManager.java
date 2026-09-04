@@ -49,7 +49,7 @@ public class DatabaseManager {
         }
     }
 
-    
+    // Appelé dans le moteurJeu
     public static void enregistrerResultat(String algorithme, ResultatRecherche resultat) {
         String sql = "INSERT INTO recherche_historique "
                 + "(algorithme, chemin, longueur_chemin, cout, temps_execution_ms, noeuds_explores, date_recherche) "
