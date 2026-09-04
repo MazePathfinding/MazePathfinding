@@ -31,4 +31,8 @@ public class Joueur {
     public boolean estArrive() { // Fin du jeu
         return position.equals(labyrinthe.getSortie());
     }
+    
+    public void reinitialiser() {
+        this.position = new Point(labyrinthe.getEntree());
+    }
 }

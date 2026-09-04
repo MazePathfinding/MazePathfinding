@@ -1,11 +1,22 @@
-
 import javax.swing.SwingUtilities;
-
-import vue.frame;
+import modele.Labyrinthe;
+import modele.MoteurJeu;
+import modele.ResultatRecherche;
+import vue.FenetreJeu;
+import vue.PanneauJeu;
 
 public class Main {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new frame());
-}
+
+        SwingUtilities.invokeLater(() -> {
+
+            // Création du labyrinthe et du moteur
+            Labyrinthe labyrinthe = new Labyrinthe();
+            MoteurJeu moteurJeu = new MoteurJeu(labyrinthe);
+
+
+            new FenetreJeu(moteurJeu);
+        });
+    }
 }

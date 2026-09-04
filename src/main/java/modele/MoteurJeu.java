@@ -1,12 +1,15 @@
 package modele;
 
 import algo.Dijkstra;
+// supprimer a cause de conflict(SADC)<<<<<<< HEAD
 import algo.AStar;
 import algo.RechercheAveugle;
-import java.awt.Point;
-import java.util.List;
+//SADC import java.awt.Point;
+//SADC import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+//SADC =======
+// SADC >>>>>>> origin/SCRUM-46-amélioration_interface
 
 public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l'état du jeu
 
@@ -48,11 +51,23 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
     public ResultatRecherche obtenirIndice(Algorithme algo) {
         switch (algo) {
             case A_STAR:
-                return AStar.calculerChemin(labyrinthe.getObstacles(), joueur.getPosition(), labyrinthe.getSortie());
+                return AStar.calculerChemin(
+                        labyrinthe.getObstacles(),
+                        joueur.getPosition(), 
+                        labyrinthe.getSortie()
+                );
             case RECHERCHE_AVEUGLE:
-                return RechercheAveugle.calculerChemin(labyrinthe.getObstacles(), joueur.getPosition(), labyrinthe.getSortie());
+                return RechercheAveugle.calculerChemin(
+                        labyrinthe.getObstacles(), 
+                        joueur.getPosition(), 
+                        labyrinthe.getSortie()
+                );
             default:
-                return Dijkstra.calculerChemin(labyrinthe.getObstacles(), joueur.getPosition(), labyrinthe.getSortie());
+                return Dijkstra.calculerChemin(
+                        labyrinthe.getObstacles(), 
+                        joueur.getPosition(), 
+                        labyrinthe.getSortie()
+                );
         }
     }
 
@@ -63,7 +78,12 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
         resultats.put(Algorithme.RECHERCHE_AVEUGLE, obtenirIndice(Algorithme.RECHERCHE_AVEUGLE));
         return resultats;
     }
-
+    
+    public void reinitialiser() {
+        joueur.reinitialiser();
+        etat = Etat.EN_COURS;
+    }
+    
     public Etat getEtat() {
         return etat;
     }

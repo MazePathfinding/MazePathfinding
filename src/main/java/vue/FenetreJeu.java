@@ -1,12 +1,13 @@
 package vue;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import modele.MoteurJeu;
+import java.awt.Color;
+import java.awt.GridBagLayout;
 
 /**
  *
@@ -15,59 +16,58 @@ import modele.MoteurJeu;
 public class FenetreJeu extends JFrame {
 
     private PanneauJeu panneauJeu;
-
-    // Informations sur l'algorithme
-    private JLabel labelAlgorithme;
-    private JLabel labelNoeuds;
-    private JLabel labelLongueur;
-    private JLabel labelCout;
-    private JLabel labelTemps;
+    private PanneauResultats panneauResultats;
 
     public FenetreJeu(MoteurJeu moteurJeu) {
 
         this.setTitle("Find the path");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setResizable(false);
+        this.setResizable(true);
 
-        // Utilisation d'un BorderLayout pour séparer
-        // le labyrinthe et les informations
+        // Utilisation d'un BorderLayout pour séparer le labyrinthe et les informations
         this.setLayout(new BorderLayout());
 
         // Création du panneau du labyrinthe
         panneauJeu = new PanneauJeu(moteurJeu);
 
-        // Ajout du labyrinthe au centre
-        this.add(panneauJeu, BorderLayout.CENTER);
+        // Création du panneau gauche
+        PanneauControles panneauGauche = new PanneauControles(panneauJeu, this);
 
-        // Création du panneau des informations
-        JPanel panneauInfos = new JPanel();
+        // Panneau central : contient le titre et le labyrinthe
+        JPanel panneauCentre = new JPanel(new BorderLayout());
+        panneauCentre.setBackground(new Color(9, 14, 23));
 
-        panneauInfos.setLayout(new GridLayout(2, 3, 15, 5));
+        // Titre du projet
+        JLabel titre = new JLabel("Recherche du trajet le plus court entre deux points");
 
-        // Ajout d'une bordure autour du panneau
-        panneauInfos.setBorder(
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        );
+        titre.setForeground(new Color(150, 170, 200));
+        titre.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24));
 
-        // Valeurs par défaut
-        labelAlgorithme = new JLabel("Algorithme : -");
-        labelNoeuds = new JLabel("Noeuds explores : 0");
-        labelLongueur = new JLabel("Longueur : 0");
-        labelCout = new JLabel("Cout : 0");
-        labelTemps = new JLabel("Temps : 0 ms");
+        titre.setHorizontalAlignment(JLabel.CENTER);
 
-        // Ajout des informations dans le panneau
-        panneauInfos.add(labelAlgorithme);
-        panneauInfos.add(labelNoeuds);
-        panneauInfos.add(labelLongueur);
-        panneauInfos.add(labelCout);
-        panneauInfos.add(labelTemps);
+        // Espace autour du titre
+        titre.setBorder(BorderFactory.createEmptyBorder(55, 10, 30, 10));
 
-        // Ajout du panneau d'informations sous le labyrinthe
-        this.add(panneauInfos, BorderLayout.SOUTH);
+        // Panneau qui garde le labyrinthe centré
+        JPanel conteneurLabyrinthe = new JPanel(new GridBagLayout());
+        conteneurLabyrinthe.setBackground(new Color(9, 14, 23));
+        conteneurLabyrinthe.add(panneauJeu);
 
+        // Placement du titre et du labyrinthe
+        panneauCentre.add(titre, BorderLayout.NORTH);
+        panneauCentre.add(conteneurLabyrinthe, BorderLayout.CENTER);
+
+        // Création du panneau des résultats
+        panneauResultats = new PanneauResultats();
+
+        // Placement des trois grandes zones
+        this.add(panneauGauche, BorderLayout.WEST);
+        this.add(panneauCentre, BorderLayout.CENTER);
+        this.add(panneauResultats, BorderLayout.EAST);
+
+        // Calcule d'abord la taille nécessaire aux composants
         this.pack();
-        this.setLocationRelativeTo(null);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setVisible(true);
     }
 
@@ -76,28 +76,29 @@ public class FenetreJeu extends JFrame {
         return panneauJeu;
     }
 
-    // Modifie le nom de l'algorithme affiché
-    public void setAlgorithme(String algorithme) {
-        labelAlgorithme.setText("Algorithme : " + algorithme);
+    public PanneauResultats getPanneauResultats() {
+        return panneauResultats;
     }
+    
+    
 
     // Modifie le nombre de noeuds explorés
     public void setNoeudsExplores(int noeuds) {
-        labelNoeuds.setText("Noeuds explores : " + noeuds);
+        panneauResultats.setNoeudsExplores(noeuds);
     }
 
     // Modifie la longueur du chemin
     public void setLongueurChemin(int longueur) {
-        labelLongueur.setText("Longueur : " + longueur);
+        panneauResultats.setLongueurChemin(longueur);
     }
 
     // Modifie le coût du chemin
     public void setCout(double cout) {
-        labelCout.setText("Cout : " + cout);
+        panneauResultats.setCout(cout);
     }
 
     // Modifie le temps d'exécution
     public void setTempsExecution(double temps) {
-        labelTemps.setText("Temps : " + temps + " ms");
+        panneauResultats.setTempsExecution(temps);
     }
 }
