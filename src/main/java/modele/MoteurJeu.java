@@ -3,6 +3,7 @@ package modele;
 import algo.Dijkstra;
 import algo.AStar;
 import algo.RechercheAveugle;
+import Database.DatabaseManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,25 +50,25 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
         switch (algo) {
             case A_STAR:
                 resultat = AStar.calculerChemin(
-                    labyrinthe.getObstacles(),
-                    joueur.getPosition(),
-                    labyrinthe.getSortie(),
+                        labyrinthe.getObstacles(),
+                        joueur.getPosition(),
+                        labyrinthe.getSortie()
                 );
                 nomAlgorithme = "A*";
                 break;
             case RECHERCHE_AVEUGLE:
                 resultat = RechercheAveugle.calculerChemin(
-                    labyrinthe.getObstacles(),
-                    joueur.getPosition(),
-                    labyrinthe.getSortie()
+                        labyrinthe.getObstacles(),
+                        joueur.getPosition(),
+                        labyrinthe.getSortie()
                 );
                 nomAlgorithme = "Recherche aveugle";
                 break;
             default:
                 resultat = Dijkstra.calculerChemin(
-                    labyrinthe.getObstacles(),
-                    joueur.getPosition(),
-                    labyrinthe.getSortie()
+                        labyrinthe.getObstacles(),
+                        joueur.getPosition(),
+                        labyrinthe.getSortie()
                 );
                 nomAlgorithme = "Dijkstra";
                 break;

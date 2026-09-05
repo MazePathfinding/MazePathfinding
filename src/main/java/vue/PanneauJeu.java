@@ -72,7 +72,7 @@ public class PanneauJeu extends JPanel {
         this.start = labyrinthe.getEntree();
         this.goal = labyrinthe.getSortie();
     }
- 
+
     // Appelée après moteurJeu.nouveauLabyrinthe() pour rafraîchir l'affichage
     public void nouveauLabyrinthe() {
         chargerDepuisLabyrinthe();
@@ -80,7 +80,7 @@ public class PanneauJeu extends JPanel {
         this.exploredNodes = new ArrayList<>();
         repaint();
     }
-    
+
     // Dessine tous les éléments du jeu
     @Override
     protected void paintComponent(Graphics g) {

@@ -274,13 +274,6 @@ public class PanneauControles extends JPanel {
             panneauJeu.animerRecherche(resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, () -> boutonLancer.setEnabled(true));
         });
 
-        panneauJeu.animerRecherche(
-            resultat.getOrdreExploration(),
-            resultat.getChemin(),
-            resultat,
-            fenetre
-        );
-        
         javax.swing.JButton boutonReinitialiser = new javax.swing.JButton("↻ Réinitialiser");
         boutonReinitialiser.addActionListener(e -> {
             panneauJeu.getMoteurJeu().reinitialiser();
@@ -292,10 +285,15 @@ public class PanneauControles extends JPanel {
 
         javax.swing.JButton boutonNouveauLabyrinthe = new javax.swing.JButton("⊞ Nouveau");
         boutonNouveauLabyrinthe.addActionListener(e -> {
-            MoteurJeu moteurJeu = panneauJeu.getMoteurJeu();
-            moteurJeu.nouveauLabyrinthe();
+            // Arrêter et nettoyer l'ancienne recherche
+            panneauJeu.getMoteurJeu().reinitialiser();
+            panneauJeu.reinitialiserRecherche();
+            fenetre.getPanneauResultats().reinitialiserResultats();
+            // Générer le nouveau labyrinthe
+            panneauJeu.getMoteurJeu().nouveauLabyrinthe();
             panneauJeu.nouveauLabyrinthe();
-            fenetre.getPanneauResultats().reinitialiserAffichage();
+            // Réactiver Lancer
+            boutonLancer.setEnabled(true);
         });
 
         boutonLancer.setBackground(new Color(30, 110, 210));
@@ -340,24 +338,19 @@ public class PanneauControles extends JPanel {
         // Éléments de la légende
         JLabel depart = new JLabel("■  Départ");
         JLabel arrivee = new JLabel("■  Arrivée");
-        JLabel exploration = new JLabel("■  Nœuds explorés");
         JLabel chemin = new JLabel("■  Chemin le plus court");
 
         depart.setForeground(new Color(60, 190, 100));
         arrivee.setForeground(new Color(220, 70, 70));
-        exploration.setForeground(new Color(15, 120, 135));
         chemin.setForeground(new Color(190, 145, 45));
 
         depart.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
         arrivee.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
-        exploration.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
         chemin.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
         this.add(depart);
         this.add(javax.swing.Box.createVerticalStrut(6));
         this.add(arrivee);
-        this.add(javax.swing.Box.createVerticalStrut(6));
-        this.add(exploration);
         this.add(javax.swing.Box.createVerticalStrut(6));
         this.add(chemin);
     }
