@@ -274,7 +274,14 @@ public class PanneauControles extends JPanel {
             panneauJeu.animerRecherche(resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, () -> boutonLancer.setEnabled(true));
         });
 
-        javax.swing.JButton boutonReinitialiser = new javax.swing.JButton("↻  Réinitialiser");
+        panneauJeu.animerRecherche(
+            resultat.getOrdreExploration(),
+            resultat.getChemin(),
+            resultat,
+            fenetre
+        );
+        
+        javax.swing.JButton boutonReinitialiser = new javax.swing.JButton("↻ Réinitialiser");
         boutonReinitialiser.addActionListener(e -> {
             panneauJeu.getMoteurJeu().reinitialiser();
             panneauJeu.reinitialiserRecherche();
@@ -283,25 +290,41 @@ public class PanneauControles extends JPanel {
             boutonLancer.setEnabled(true);
         });
 
+        javax.swing.JButton boutonNouveauLabyrinthe = new javax.swing.JButton("⊞ Nouveau");
+        boutonNouveauLabyrinthe.addActionListener(e -> {
+            MoteurJeu moteurJeu = panneauJeu.getMoteurJeu();
+            moteurJeu.nouveauLabyrinthe();
+            panneauJeu.nouveauLabyrinthe();
+            fenetre.getPanneauResultats().reinitialiserAffichage();
+        });
+
         boutonLancer.setBackground(new Color(30, 110, 210));
         boutonLancer.setForeground(Color.WHITE);
 
         boutonReinitialiser.setBackground(new Color(25, 38, 58));
         boutonReinitialiser.setForeground(Color.WHITE);
 
+        boutonNouveauLabyrinthe.setBackground(new Color(25, 38, 58));
+        boutonNouveauLabyrinthe.setForeground(Color.WHITE);
+
         // Taille identique pour les deux boutons
         boutonLancer.setMaximumSize(new java.awt.Dimension(220, 38));
         boutonReinitialiser.setMaximumSize(new java.awt.Dimension(220, 38));
+        boutonNouveauLabyrinthe.setMaximumSize(new java.awt.Dimension(220, 38));
 
         boutonLancer.setFocusPainted(false);
         boutonReinitialiser.setFocusPainted(false);
+        boutonNouveauLabyrinthe.setFocusPainted(false);
 
         boutonLancer.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
         boutonReinitialiser.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        boutonNouveauLabyrinthe.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
         this.add(boutonLancer);
         this.add(javax.swing.Box.createVerticalStrut(8));
         this.add(boutonReinitialiser);
+        this.add(javax.swing.Box.createVerticalStrut(8));
+        this.add(boutonNouveauLabyrinthe);
 
         this.add(javax.swing.Box.createVerticalStrut(30));
 

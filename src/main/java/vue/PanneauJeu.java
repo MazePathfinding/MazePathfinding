@@ -63,6 +63,24 @@ public class PanneauJeu extends JPanel {
         this.setBackground(COULEUR_FOND);
     }
 
+    // Recopie les données du labyrinthe actuel du moteur de jeu dans le panneau
+    private void chargerDepuisLabyrinthe() {
+        this.labyrinthe = moteurJeu.getLabyrinthe();
+        this.ROWS = labyrinthe.getHauteur();
+        this.COL = labyrinthe.getLargeur();
+        this.maze = labyrinthe.getObstacles();
+        this.start = labyrinthe.getEntree();
+        this.goal = labyrinthe.getSortie();
+    }
+ 
+    // Appelée après moteurJeu.nouveauLabyrinthe() pour rafraîchir l'affichage
+    public void nouveauLabyrinthe() {
+        chargerDepuisLabyrinthe();
+        this.path = new ArrayList<>();
+        this.exploredNodes = new ArrayList<>();
+        repaint();
+    }
+    
     // Dessine tous les éléments du jeu
     @Override
     protected void paintComponent(Graphics g) {
