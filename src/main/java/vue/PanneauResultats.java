@@ -12,6 +12,7 @@ import modele.MoteurJeu;
  * @author fenitra
  */
 public class PanneauResultats extends JPanel {
+
     private JLabel dijkstraCout;
     private JLabel dijkstraLongueur;
     private JLabel dijkstraExplores;
@@ -31,6 +32,12 @@ public class PanneauResultats extends JPanel {
     private JLabel comparaisonDijkstraCout;
     private JLabel comparaisonDijkstraNoeuds;
     private JLabel comparaisonDijkstraTemps;
+    private JLabel comparaisonAStarCout;
+    private JLabel comparaisonAStarNoeuds;
+    private JLabel comparaisonAStarTemps;
+    private JLabel comparaisonBFSCout;
+    private JLabel comparaisonBFSNoeuds;
+    private JLabel comparaisonBFSTemps;
     private MoteurJeu.Algorithme algorithmeActuel;
 
     public PanneauResultats() {
@@ -79,9 +86,7 @@ public class PanneauResultats extends JPanel {
 
         // Création des cartes de résultats
         JPanel carteDijkstra = creerCarte("●  Dijkstra", couleurDijkstra, dijkstraCout, dijkstraLongueur, dijkstraExplores, dijkstraTemps);
-
         JPanel carteAStar = creerCarte("●  A*", couleurAStar, aStarCout, aStarLongueur, aStarExplores, aStarTemps);
-
         JPanel carteBFS = creerCarte("●  BFS", couleurBFS, bfsCout, bfsLongueur, bfsExplores, bfsTemps);
 
         // Ajout des cartes dans le panneau droit
@@ -124,16 +129,22 @@ public class PanneauResultats extends JPanel {
         comparaison.add(comparaisonDijkstraTemps);
 
         // Ligne A*
+        comparaisonAStarCout = creerTexteComparaison("-", Color.WHITE);
+        comparaisonAStarNoeuds = creerTexteComparaison("-", Color.WHITE);
+        comparaisonAStarTemps = creerTexteComparaison("-", Color.WHITE);
         comparaison.add(creerTexteComparaison("● A*", couleurAStar));
-        comparaison.add(creerTexteComparaison("-", Color.WHITE));
-        comparaison.add(creerTexteComparaison("-", Color.WHITE));
-        comparaison.add(creerTexteComparaison("-", Color.WHITE));
+        comparaison.add(comparaisonAStarCout);
+        comparaison.add(comparaisonAStarNoeuds);
+        comparaison.add(comparaisonAStarTemps);
 
         // Ligne BFS
+        comparaisonBFSCout = creerTexteComparaison("-", Color.WHITE);
+        comparaisonBFSNoeuds = creerTexteComparaison("-", Color.WHITE);
+        comparaisonBFSTemps = creerTexteComparaison("-", Color.WHITE);
         comparaison.add(creerTexteComparaison("● BFS", couleurBFS));
-        comparaison.add(creerTexteComparaison("-", Color.WHITE));
-        comparaison.add(creerTexteComparaison("-", Color.WHITE));
-        comparaison.add(creerTexteComparaison("-", Color.WHITE));
+        comparaison.add(comparaisonBFSCout);
+        comparaison.add(comparaisonBFSNoeuds);
+        comparaison.add(comparaisonBFSTemps);
 
         this.add(comparaison);
     }
@@ -141,7 +152,7 @@ public class PanneauResultats extends JPanel {
     // Crée une carte de résultats pour un algorithme
     private JPanel creerCarte(String nom, Color couleur, JLabel cout,
             JLabel longueur, JLabel explores, JLabel temps) {
-        
+
         JPanel carte = new JPanel();
         carte.setLayout(new BoxLayout(carte, BoxLayout.Y_AXIS));
         carte.setBackground(new Color(20, 31, 48));
@@ -191,52 +202,90 @@ public class PanneauResultats extends JPanel {
 
     // Met à jour le nombre de noeuds explorés 
     public void setNoeudsExplores(int noeuds) {
-         if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
-        dijkstraExplores.setText(String.valueOf(noeuds));
-        comparaisonDijkstraNoeuds.setText(String.valueOf(noeuds));
-          }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
-              aStarExplores.setText(String.valueOf(noeuds));
-          }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
-               bfsExplores.setText(String.valueOf(noeuds));
-          }
+        if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
+            dijkstraExplores.setText(String.valueOf(noeuds));
+            comparaisonDijkstraNoeuds.setText(String.valueOf(noeuds));
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+            aStarExplores.setText(String.valueOf(noeuds));
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+            bfsExplores.setText(String.valueOf(noeuds));
+        }
     }
+
     // Met à jour la longueur du chemin trouvé 
     public void setLongueurChemin(int longueur) {
         if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
-        dijkstraLongueur.setText(longueur + " noeuds");
-    }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
-        aStarLongueur.setText(longueur + " noeuds");
-    }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
-         bfsLongueur.setText(longueur + " noeuds");
+            dijkstraLongueur.setText(longueur + " noeuds");
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+            aStarLongueur.setText(longueur + " noeuds");
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+            bfsLongueur.setText(longueur + " noeuds");
+        }
     }
-  }
 
     // Met à jour le coût total du chemin trouvé 
     public void setCout(double cout) {
         if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
-        dijkstraCout.setText(String.valueOf(cout));
-        comparaisonDijkstraCout.setText(String.valueOf(cout));
-    }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
-        aStarCout.setText(String.valueOf(cout));
-    }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
-         bfsCout.setText(String.valueOf(cout));
+            dijkstraCout.setText(String.valueOf(cout));
+            comparaisonDijkstraCout.setText(String.valueOf(cout));
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+            aStarCout.setText(String.valueOf(cout));
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+            bfsCout.setText(String.valueOf(cout));
+        }
     }
-   }
 
     // Met à jour le temps d'exécution 
     public void setTempsExecution(double temps) {
         String tempsTexte = String.format("%.2f ms", temps);
         if (algorithmeActuel == MoteurJeu.Algorithme.DIJKSTRA) {
-        dijkstraTemps.setText(tempsTexte);
-        comparaisonDijkstraTemps.setText(tempsTexte);
-     }else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
-          aStarTemps.setText(tempsTexte);
-     }else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
-         bfsTemps.setText(tempsTexte);
-     }
+            dijkstraTemps.setText(tempsTexte);
+            comparaisonDijkstraTemps.setText(tempsTexte);
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
+            aStarTemps.setText(tempsTexte);
+        } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
+            bfsTemps.setText(tempsTexte);
+        }
     }
+
     public void setAlgorithmeActuel(MoteurJeu.Algorithme algorithmeActuel) {
         this.algorithmeActuel = algorithmeActuel;
     }
-    
+
+    // Remet tous les resultats affiches a leur valeur initiale
+    public void reinitialiserResultats() {
+
+        // Carte Dijkstra
+        dijkstraCout.setText("-");
+        dijkstraLongueur.setText("-");
+        dijkstraExplores.setText("-");
+        dijkstraTemps.setText("-");
+
+        // Carte A*
+        aStarCout.setText("-");
+        aStarLongueur.setText("-");
+        aStarExplores.setText("-");
+        aStarTemps.setText("-");
+
+        // Carte BFS
+        bfsCout.setText("-");
+        bfsLongueur.setText("-");
+        bfsExplores.setText("-");
+        bfsTemps.setText("-");
+
+        // Tableau de comparaison Dijkstra
+        comparaisonDijkstraCout.setText("-");
+        comparaisonDijkstraNoeuds.setText("-");
+        comparaisonDijkstraTemps.setText("-");
+
+        // Tableau de comparaison A*
+        comparaisonAStarCout.setText("-");
+        comparaisonAStarNoeuds.setText("-");
+        comparaisonAStarTemps.setText("-");
+
+        // Tableau de comparaison BFS
+        comparaisonBFSCout.setText("-");
+        comparaisonBFSNoeuds.setText("-");
+        comparaisonBFSTemps.setText("-");
+    }
 }

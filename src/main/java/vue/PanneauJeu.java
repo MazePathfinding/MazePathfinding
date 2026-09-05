@@ -18,6 +18,7 @@ import modele.ResultatRecherche;
  * @author fenit
  */
 public class PanneauJeu extends JPanel {
+
     // Taille d'une case en pixels
     private final int CELL_SIZE = 35;
     // Couleurs principales du labyrinthe
@@ -40,6 +41,10 @@ public class PanneauJeu extends JPanel {
     private Point goal;
     private List<Point> path = new ArrayList<>();
     private List<Point> exploredNodes = new ArrayList<>();
+    // Timer utilisé pour l'animation des noeuds explorés
+    private Timer timerRecherche;
+    // Timer utilisé pour le déplacement du joueur sur le chemin
+    private Timer timerChemin;
 
     public PanneauJeu(MoteurJeu moteurJeu) {
         this.moteurJeu = moteurJeu;
@@ -203,14 +208,17 @@ public class PanneauJeu extends JPanel {
     }
 
     // Anime le déplacement du joueur sur le chemin final
-    public void animerChemin(List<Point> chemin) {
+    public void animerChemin(List<Point> chemin, Runnable finAnimation) {
         // Le premier point correspond déjà à la position de départ
         final int[] index = {1};
-        Timer timer = new Timer(200, e -> {
-
+        timerChemin = new Timer(200, e -> {
             // Arrête l'animation lorsque le chemin est terminé
             if (index[0] >= chemin.size()) {
-                ((Timer) e.getSource()).stop();
+                timerChemin.stop();
+
+                if (finAnimation != null) {
+                    finAnimation.run();
+                }
                 return;
             }
             // Position actuelle du joueur
@@ -246,26 +254,21 @@ public class PanneauJeu extends JPanel {
             repaint();
             index[0]++;
         });
-        timer.start();
+        timerChemin.start();
     }
 
     // Anime progressivement les nœuds explorés pendant la recherche
-    public void animerRecherche(
-            List<Point> noeudsExplores,
-            List<Point> chemin,
-            ResultatRecherche resultat,
-            FenetreJeu fenetre
-    ) {
+    public void animerRecherche(List<Point> noeudsExplores, List<Point> chemin,
+            ResultatRecherche resultat, FenetreJeu fenetre, Runnable finAnimation) {
 
         exploredNodes.clear();
         path.clear();
 
         final int[] index = {0};
 
-        Timer timer = new Timer(50, e -> {
-
+        timerRecherche = new Timer(50, e -> {
             if (index[0] >= noeudsExplores.size()) {
-                ((Timer) e.getSource()).stop();
+                timerRecherche.stop();
                 // Affiche maintenant le chemin final
                 setPath(chemin);
 
@@ -276,7 +279,7 @@ public class PanneauJeu extends JPanel {
                 fenetre.setTempsExecution(resultat.getTempsExecutionMs());
 
                 // Déplace ensuite le joueur
-                animerChemin(chemin);
+                animerChemin(chemin, finAnimation);
                 return;
             }
 
@@ -285,11 +288,21 @@ public class PanneauJeu extends JPanel {
             repaint();
             index[0]++;
         });
-        timer.start();
+        timerRecherche.start();
     }
 
-    // Redessine le panneau
-    public void actualiser() {
+    // Arrete les animations et reinitialise l'affichage de la recherche 
+    public void reinitialiserRecherche() {
+        if (timerRecherche != null && timerRecherche.isRunning()) {
+            timerRecherche.stop();
+        }
+
+        if (timerChemin != null && timerChemin.isRunning()) {
+            timerChemin.stop();
+        }
+
+        exploredNodes.clear();
+        path.clear();
         repaint();
     }
 
