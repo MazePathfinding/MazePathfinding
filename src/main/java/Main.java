@@ -1,3 +1,5 @@
+
+import Database.DatabaseManager;
 import javax.swing.SwingUtilities;
 import modele.Labyrinthe;
 import modele.MoteurJeu;
