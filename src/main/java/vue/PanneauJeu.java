@@ -5,7 +5,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import modele.Direction;
@@ -19,16 +24,23 @@ import modele.ResultatRecherche;
  */
 public class PanneauJeu extends JPanel {
 
-    // Taille d'une case en pixels
+    // Taille d'une case
     private final int CELL_SIZE = 35;
     // Couleurs principales du labyrinthe
     private final Color COULEUR_FOND = new Color(8, 13, 22);
     private final Color COULEUR_MUR = new Color(9, 15, 25);
     private final Color COULEUR_PASSAGE = new Color(20, 30, 46);
     private final Color COULEUR_BORDURE = new Color(36, 52, 74);
-    // Couleur utilisée pour les noeuds explorés
-    private Color couleurExploration = new Color(15, 78, 88);
     private final Color COULEUR_CHEMIN = new Color(91, 70, 22);
+
+    // Couleur utilisée pour les noeuds explorés
+    private static final Map<MoteurJeu.Algorithme, Color> COULEURS_EXPLORATION = new EnumMap<>(MoteurJeu.Algorithme.class);
+    static {
+        COULEURS_EXPLORATION.put(MoteurJeu.Algorithme.DIJKSTRA, new Color(18, 105, 120));
+        COULEURS_EXPLORATION.put(MoteurJeu.Algorithme.A_STAR, new Color(85, 60, 145));
+        COULEURS_EXPLORATION.put(MoteurJeu.Algorithme.RECHERCHE_AVEUGLE, new Color(145, 80, 30));
+    }
+
     private MoteurJeu moteurJeu;
     private Labyrinthe labyrinthe;
     // Dimensions du labyrinthe
@@ -39,8 +51,11 @@ public class PanneauJeu extends JPanel {
     private Point start;
     // Point d'arrivée
     private Point goal;
-    private List<Point> path = new ArrayList<>();
-    private List<Point> exploredNodes = new ArrayList<>();
+
+    // Cases explorées et chemin final, séparés par algorithme
+    private Map<MoteurJeu.Algorithme, List<Point>> exploredNodesParAlgo = new EnumMap<>(MoteurJeu.Algorithme.class);
+    private Map<MoteurJeu.Algorithme, List<Point>> cheminParAlgo = new EnumMap<>(MoteurJeu.Algorithme.class);
+    
     // Timer utilisé pour l'animation des noeuds explorés
     private Timer timerRecherche;
     // Timer utilisé pour le déplacement du joueur sur le chemin
@@ -48,12 +63,7 @@ public class PanneauJeu extends JPanel {
 
     public PanneauJeu(MoteurJeu moteurJeu) {
         this.moteurJeu = moteurJeu;
-        this.labyrinthe = moteurJeu.getLabyrinthe();
-        this.ROWS = labyrinthe.getHauteur();
-        this.COL = labyrinthe.getLargeur();
-        this.maze = labyrinthe.getObstacles();
-        this.start = labyrinthe.getEntree();
-        this.goal = labyrinthe.getSortie();
+        chargerDepuisLabyrinthe();
 
         // Calcul de la taille du panneau
         int width = COL * CELL_SIZE;
@@ -76,8 +86,8 @@ public class PanneauJeu extends JPanel {
     // Appelée après moteurJeu.nouveauLabyrinthe() pour rafraîchir l'affichage
     public void nouveauLabyrinthe() {
         chargerDepuisLabyrinthe();
-        this.path = new ArrayList<>();
-        this.exploredNodes = new ArrayList<>();
+        exploredNodesParAlgo.clear();
+        cheminParAlgo.clear();
         repaint();
     }
 
@@ -103,11 +113,8 @@ public class PanneauJeu extends JPanel {
                 int y = row * CELL_SIZE;
 
                 if (maze[row][col]) {
-                    // Mur
                     g2.setColor(COULEUR_MUR);
-
                 } else {
-                    // Passage
                     g2.setColor(COULEUR_PASSAGE);
                 }
                 g2.fillRect(x, y, CELL_SIZE, CELL_SIZE);
@@ -115,15 +122,56 @@ public class PanneauJeu extends JPanel {
         }
     }
 
-    // Dessine les nœuds explorés par l'algorithme
+    // Dessine les nœuds explorés , en combinant les couleurs quand plusieurs algorithmes ont exploré la même case (mode comparaison)
     private void drawExploredNodes(Graphics2D g2) {
-        g2.setColor(couleurExploration);
+        Map<Point, List<Color>> couleursParCase = new HashMap<>();
+ 
+        // L'ordre d'insertion (EnumMap = ordre naturel de l'enum) garantit un rendu stable, toujours dans le même ordre Dijkstra / A* / BFS
+        for (Map.Entry<MoteurJeu.Algorithme, List<Point>> entry : exploredNodesParAlgo.entrySet()) {
+            Color couleur = COULEURS_EXPLORATION.get(entry.getKey());
+            for (Point p : entry.getValue()) {
+                couleursParCase.computeIfAbsent(p, k -> new ArrayList<>()).add(couleur);
+            }
+        }
+ 
+        for (Map.Entry<Point, List<Color>> entry : couleursParCase.entrySet()) {
+            dessinerCaseMulticolore(g2, entry.getKey(), entry.getValue());
+        }
+    }
 
-        for (Point p : exploredNodes) {
-            int x = p.x * CELL_SIZE;
-            int y = p.y * CELL_SIZE;
-
-            g2.fillRect(x + 7, y + 7, CELL_SIZE - 14, CELL_SIZE - 14);
+    // Dessine une case explorée, avec un motif différent selon le nombre d'algorithmes qui l'ont explorée (1 = uni, 2 = diagonale, 3 = bandes)
+    private void dessinerCaseMulticolore(Graphics2D g2, Point p, List<Color> couleurs) {
+        int marge = 7;
+        int taille = CELL_SIZE - 14;
+        int x = p.x * CELL_SIZE + marge;
+        int y = p.y * CELL_SIZE + marge;
+ 
+        if (couleurs.size() == 1) {
+            g2.setColor(couleurs.get(0));
+            g2.fillRect(x, y, taille, taille);
+ 
+        } else if (couleurs.size() == 2) {
+            // Diagonale : triangle haut-gauche pour la 1ère couleur, bas-droit pour la 2e
+            g2.setColor(couleurs.get(0));
+            g2.fillPolygon(
+                    new int[]{x, x + taille, x},
+                    new int[]{y, y, y + taille},
+                    3
+            );
+            g2.setColor(couleurs.get(1));
+            g2.fillPolygon(
+                    new int[]{x + taille, x + taille, x},
+                    new int[]{y, y + taille, y + taille},
+                    3
+            );
+ 
+        } else {
+            // 3 algorithmes : bandes verticales égales
+            int largeurBande = taille / couleurs.size();
+            for (int i = 0; i < couleurs.size(); i++) {
+                g2.setColor(couleurs.get(i));
+                g2.fillRect(x + i * largeurBande, y, largeurBande, taille);
+            }
         }
     }
 
@@ -131,7 +179,12 @@ public class PanneauJeu extends JPanel {
     private void drawPath(Graphics2D g2) {
         g2.setColor(COULEUR_CHEMIN);
 
-        for (Point p : path) {
+        Set<Point> casesChemin = new HashSet<>();
+        for (List<Point> chemin : cheminParAlgo.values()) {
+            casesChemin.addAll(chemin);
+        }
+
+        for (Point p : casesChemin) {
             int x = p.x * CELL_SIZE;
             int y = p.y * CELL_SIZE;
             g2.fillRect(x + 5, y + 5, CELL_SIZE - 10, CELL_SIZE - 10);
@@ -195,18 +248,6 @@ public class PanneauJeu extends JPanel {
         }
     }
 
-    // Reçoit le chemin final
-    public void setPath(List<Point> newPath) {
-        this.path = newPath;
-        repaint();
-    }
-
-    // Reçoit les nœuds explorés
-    public void setExploredNodes(List<Point> newExploredNodes) {
-        this.exploredNodes = newExploredNodes;
-        repaint();
-    }
-
     // Anime le déplacement du joueur sur le chemin final
     public void animerChemin(List<Point> chemin, Runnable finAnimation) {
         // Le premier point correspond déjà à la position de départ
@@ -215,7 +256,6 @@ public class PanneauJeu extends JPanel {
             // Arrête l'animation lorsque le chemin est terminé
             if (index[0] >= chemin.size()) {
                 timerChemin.stop();
-
                 if (finAnimation != null) {
                     finAnimation.run();
                 }
@@ -258,33 +298,89 @@ public class PanneauJeu extends JPanel {
     }
 
     // Anime progressivement les nœuds explorés pendant la recherche
-    public void animerRecherche(List<Point> noeudsExplores, List<Point> chemin,
-            ResultatRecherche resultat, FenetreJeu fenetre, Runnable finAnimation) {
-
-        exploredNodes.clear();
-        path.clear();
-
+    public void animerRecherche(MoteurJeu.Algorithme algorithme, List<Point> noeudsExplores,
+            List<Point> chemin, ResultatRecherche resultat, FenetreJeu fenetre, Runnable finAnimation) {
+ 
+        exploredNodesParAlgo.clear();
+        cheminParAlgo.clear();
+        exploredNodesParAlgo.put(algorithme, new ArrayList<>());
+ 
         final int[] index = {0};
-
+ 
         timerRecherche = new Timer(50, e -> {
             if (index[0] >= noeudsExplores.size()) {
                 timerRecherche.stop();
-                // Affiche maintenant le chemin final
-                setPath(chemin);
-
-                // Affiche les statistiques seulement après la recherche
+ 
+                cheminParAlgo.put(algorithme, chemin);
+                repaint();
+ 
                 fenetre.setNoeudsExplores(resultat.getNoeudsExplores());
                 fenetre.setLongueurChemin(resultat.getLongueurChemin());
                 fenetre.setCout(resultat.getCout());
                 fenetre.setTempsExecution(resultat.getTempsExecutionMs());
-
-                // Déplace ensuite le joueur
+ 
                 animerChemin(chemin, finAnimation);
                 return;
             }
+ 
+            exploredNodesParAlgo.get(algorithme).add(new Point(noeudsExplores.get(index[0])));
+            repaint();
+            index[0]++;
+        });
+        timerRecherche.start();
+    }
 
-            exploredNodes.add(new Point(noeudsExplores.get(index[0])));
-
+    // Anime les 3 algorithmes simultanément (mode comparaison)
+    public void animerComparaison(Map<MoteurJeu.Algorithme, ResultatRecherche> resultats,
+            FenetreJeu fenetre, Runnable finAnimation) {
+ 
+        exploredNodesParAlgo.clear();
+        cheminParAlgo.clear();
+ 
+        for (MoteurJeu.Algorithme algo : resultats.keySet()) {
+            exploredNodesParAlgo.put(algo, new ArrayList<>());
+        }
+ 
+        // Chaque algorithme avance à son propre rythme : on continue tant que le plus long des 3 n'a pas fini de révéler ses cases explorées
+        int maxExplores = resultats.values().stream()
+            .mapToInt(r -> r.getOrdreExploration().size())
+            .max().orElse(0);
+ 
+        final int[] index = {0};
+ 
+        timerRecherche = new Timer(50, e -> {
+            if (index[0] >= maxExplores) {
+                timerRecherche.stop();
+ 
+                // Affiche les chemins finaux de chaque algorithme
+                for (Map.Entry<MoteurJeu.Algorithme, ResultatRecherche> entry : resultats.entrySet()) {
+                    cheminParAlgo.put(entry.getKey(), entry.getValue().getChemin());
+                }
+                repaint();
+ 
+                // Remplit les 3 cartes de résultats + le tableau de comparaison
+                for (Map.Entry<MoteurJeu.Algorithme, ResultatRecherche> entry : resultats.entrySet()) {
+                    ResultatRecherche r = entry.getValue();
+                    fenetre.getPanneauResultats().setAlgorithmeActuel(entry.getKey());
+                    fenetre.setNoeudsExplores(r.getNoeudsExplores());
+                    fenetre.setLongueurChemin(r.getLongueurChemin());
+                    fenetre.setCout(r.getCout());
+                    fenetre.setTempsExecution(r.getTempsExecutionMs());
+                }
+ 
+                if (finAnimation != null) {
+                    finAnimation.run();
+                }
+                return;
+            }
+ 
+            for (Map.Entry<MoteurJeu.Algorithme, ResultatRecherche> entry : resultats.entrySet()) {
+                List<Point> ordre = entry.getValue().getOrdreExploration();
+                if (index[0] < ordre.size()) {
+                    exploredNodesParAlgo.get(entry.getKey()).add(new Point(ordre.get(index[0])));
+                }
+            }
+ 
             repaint();
             index[0]++;
         });
@@ -301,14 +397,8 @@ public class PanneauJeu extends JPanel {
             timerChemin.stop();
         }
 
-        exploredNodes.clear();
-        path.clear();
-        repaint();
-    }
-
-    // Change la couleur des noeuds explorés
-    public void setCouleurExploration(Color couleur) {
-        this.couleurExploration = couleur;
+        exploredNodesParAlgo.clear();
+        cheminParAlgo.clear();
         repaint();
     }
 

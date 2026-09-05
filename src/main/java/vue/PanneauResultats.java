@@ -207,8 +207,10 @@ public class PanneauResultats extends JPanel {
             comparaisonDijkstraNoeuds.setText(String.valueOf(noeuds));
         } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
             aStarExplores.setText(String.valueOf(noeuds));
+            comparaisonAStarNoeuds.setText(String.valueOf(noeuds));
         } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
             bfsExplores.setText(String.valueOf(noeuds));
+            comparaisonBFSNoeuds.setText(String.valueOf(noeuds));
         }
     }
 
@@ -230,8 +232,10 @@ public class PanneauResultats extends JPanel {
             comparaisonDijkstraCout.setText(String.valueOf(cout));
         } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
             aStarCout.setText(String.valueOf(cout));
+            comparaisonAStarCout.setText(String.valueOf(cout));
         } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
             bfsCout.setText(String.valueOf(cout));
+            comparaisonBFSCout.setText(String.valueOf(cout));
         }
     }
 
@@ -243,8 +247,10 @@ public class PanneauResultats extends JPanel {
             comparaisonDijkstraTemps.setText(tempsTexte);
         } else if (algorithmeActuel == MoteurJeu.Algorithme.A_STAR) {
             aStarTemps.setText(tempsTexte);
+            comparaisonAStarTemps.setText(tempsTexte);
         } else if (algorithmeActuel == MoteurJeu.Algorithme.RECHERCHE_AVEUGLE) {
             bfsTemps.setText(tempsTexte);
+            comparaisonBFSTemps.setText(tempsTexte);
         }
     }
 
