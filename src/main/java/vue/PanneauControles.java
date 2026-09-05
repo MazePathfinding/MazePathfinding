@@ -13,10 +13,13 @@ import modele.ResultatRecherche;
  * @author fenitra
  */
 public class PanneauControles extends JPanel {
+
     private JButton boutonDijkstra;
     private JButton boutonAStar;
     private JButton boutonBFS;
+    private JButton boutonLancer;
     private MoteurJeu.Algorithme algorithmeSelectionne = MoteurJeu.Algorithme.DIJKSTRA;
+
     public PanneauControles(PanneauJeu panneauJeu, FenetreJeu fenetre) {
         // Configuration du panneau gauche
         this.setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
@@ -255,32 +258,30 @@ public class PanneauControles extends JPanel {
         this.add(javax.swing.Box.createVerticalStrut(12));
 
         // Boutons principaux de l'interface
-        javax.swing.JButton boutonLancer = new javax.swing.JButton("▶  Lancer");
+        boutonLancer = new javax.swing.JButton("▶  Lancer");
         boutonLancer.addActionListener(e -> {
-
+            // Empêche de lancer plusieurs recherches en même temps
+            boutonLancer.setEnabled(false);
             MoteurJeu moteurJeu = panneauJeu.getMoteurJeu();
-            
+            // Chaque nouvelle recherche repart du début
+            moteurJeu.reinitialiser();
+            // Nettoie l'ancienne recherche affichée
+            panneauJeu.reinitialiserRecherche();
+            // Nettoie les anciens résultats
+            fenetre.getPanneauResultats().reinitialiserResultats();
             fenetre.getPanneauResultats().setAlgorithmeActuel(algorithmeSelectionne);
-            
-            ResultatRecherche resultat =
-                moteurJeu.obtenirIndice(algorithmeSelectionne);
+            ResultatRecherche resultat = moteurJeu.obtenirIndice(algorithmeSelectionne);
+            panneauJeu.animerRecherche(resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, () -> boutonLancer.setEnabled(true));
+        });
 
-            panneauJeu.animerRecherche(
-                    resultat.getOrdreExploration(),
-                    resultat.getChemin(),
-                    resultat,
-                    fenetre
-            );
-    });
-        
         javax.swing.JButton boutonReinitialiser = new javax.swing.JButton("↻  Réinitialiser");
         boutonReinitialiser.addActionListener(e -> {
             panneauJeu.getMoteurJeu().reinitialiser();
-            panneauJeu.setExploredNodes(new java.util.ArrayList<>());
-            panneauJeu.setPath(new java.util.ArrayList<>());
-            panneauJeu.repaint();
+            panneauJeu.reinitialiserRecherche();
+            fenetre.getPanneauResultats().reinitialiserResultats();
+            // Réactive Lancer même si l'animation a été interrompue
+            boutonLancer.setEnabled(true);
         });
-        
 
         boutonLancer.setBackground(new Color(30, 110, 210));
         boutonLancer.setForeground(Color.WHITE);
