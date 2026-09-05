@@ -57,6 +57,24 @@ public class PanneauJeu extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(width, height));
         this.setBackground(COULEUR_FOND);
     }
+
+    // Recopie les données du labyrinthe actuel du moteur de jeu dans le panneau
+    private void chargerDepuisLabyrinthe() {
+        this.labyrinthe = moteurJeu.getLabyrinthe();
+        this.ROWS = labyrinthe.getHauteur();
+        this.COL = labyrinthe.getLargeur();
+        this.maze = labyrinthe.getObstacles();
+        this.start = labyrinthe.getEntree();
+        this.goal = labyrinthe.getSortie();
+    }
+ 
+    // Appelée après moteurJeu.nouveauLabyrinthe() pour rafraîchir l'affichage
+    public void nouveauLabyrinthe() {
+        chargerDepuisLabyrinthe();
+        this.path = new ArrayList<>();
+        this.exploredNodes = new ArrayList<>();
+        repaint();
+    }
     
     // Dessine tous les éléments du jeu
     @Override
@@ -161,22 +179,13 @@ public class PanneauJeu extends JPanel {
         g2.setColor(COULEUR_BORDURE);
         // Dessine les lignes verticales de la grille
         for (int col = 0; col <= COL; col++) {
-           int x = col * CELL_SIZE;
-           g2.drawLine(x, 0, x, ROWS * CELL_SIZE);
-//SADC<<<<<<< HEAD
-
-//SADC=======
-//SADC>>>>>>> origin/SCRUM-46-amélioration_interface
-            
+            int x = col * CELL_SIZE;
+            g2.drawLine(x, 0, x, ROWS * CELL_SIZE);
         }
 
         // Dessine les lignes horizontales de la grille
         for (int row = 0; row <= ROWS; row++) {
             int y = row * CELL_SIZE;
-//SADC<<<<<<< HEAD
-
-//SADC=======
-//SADC>>>>>>> origin/SCRUM-46-amélioration_interface
             g2.drawLine(0, y, COL * CELL_SIZE, y);
         }
     }
@@ -270,12 +279,9 @@ public class PanneauJeu extends JPanel {
                 animerChemin(chemin);
                 return;
             }
-//SADC <<<<<<< HEAD
 
             exploredNodes.add(new Point(noeudsExplores.get(index[0])));
 
-//SADC=======
-//SADC>>>>>>> origin/SCRUM-46-amélioration_interface
             repaint();
             index[0]++;
         });
@@ -296,5 +302,5 @@ public class PanneauJeu extends JPanel {
     public MoteurJeu getMoteurJeu() {
         return moteurJeu;
     }
-    
+
 }
