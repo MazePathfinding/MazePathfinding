@@ -29,6 +29,10 @@ public class PanneauJeu extends JPanel {
     // Couleur utilisée pour les noeuds explorés
     private Color couleurExploration = new Color(15, 78, 88);
     private final Color COULEUR_CHEMIN = new Color(91, 70, 22);
+    // Couleurs des algorithmes en mode comparaison
+    private final Color COULEUR_DIJKSTRA = new Color(15, 110, 125);
+    private final Color COULEUR_ASTAR = new Color(105, 65, 170);
+    private final Color COULEUR_BFS = new Color(180, 95, 30);
     private MoteurJeu moteurJeu;
     private Labyrinthe labyrinthe;
     // Dimensions du labyrinthe
@@ -40,7 +44,14 @@ public class PanneauJeu extends JPanel {
     // Point d'arrivée
     private Point goal;
     private List<Point> path = new ArrayList<>();
+    // Exploration utilisée en mode individuel
     private List<Point> exploredNodes = new ArrayList<>();
+    // Explorations utilisées en mode comparaison simultanée
+    private List<Point> exploredDijkstra = new ArrayList<>();
+    private List<Point> exploredAStar = new ArrayList<>();
+    private List<Point> exploredBFS = new ArrayList<>();
+    // Permet de savoir quel affichage utiliser
+    private boolean modeComparaison = false;
     // Timer utilisé pour l'animation des noeuds explorés
     private Timer timerRecherche;
     // Timer utilisé pour le déplacement du joueur sur le chemin
@@ -88,7 +99,11 @@ public class PanneauJeu extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
 
         drawMaze(g2);
-        drawExploredNodes(g2);
+        if (modeComparaison) {
+            drawExploredNodesComparaison(g2);
+        } else {
+            drawExploredNodes(g2);
+        }
         drawPath(g2);
         drawStartAndGoal(g2);
         drawPlayer(g2);
@@ -124,6 +139,94 @@ public class PanneauJeu extends JPanel {
             int y = p.y * CELL_SIZE;
 
             g2.fillRect(x + 7, y + 7, CELL_SIZE - 14, CELL_SIZE - 14);
+        }
+    }
+
+    private void drawExploredNodesComparaison(Graphics2D g2) {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COL; col++) {
+                Point p = new Point(col, row);
+
+                boolean dijkstra = exploredDijkstra.contains(p);
+                boolean aStar = exploredAStar.contains(p);
+                boolean bfs = exploredBFS.contains(p);
+
+                int nombreAlgorithmes = 0;
+
+                if (dijkstra) {
+                    nombreAlgorithmes++;
+                }
+
+                if (aStar) {
+                    nombreAlgorithmes++;
+                }
+
+                if (bfs) {
+                    nombreAlgorithmes++;
+                }
+
+                if (nombreAlgorithmes == 0) {
+                    continue;
+                }
+                int x = col * CELL_SIZE + 7;
+                int y = row * CELL_SIZE + 7;
+                int taille = CELL_SIZE - 14;
+
+                // Une seule couleur
+                if (nombreAlgorithmes == 1) {
+                    if (dijkstra) {
+                        g2.setColor(COULEUR_DIJKSTRA);
+                    } else if (aStar) {
+                        g2.setColor(COULEUR_ASTAR);
+                    } else {
+                        g2.setColor(COULEUR_BFS);
+                    }
+
+                    g2.fillRect(x, y, taille, taille);
+                } // Deux algorithmes sur la même case
+                else if (nombreAlgorithmes == 2) {
+                    Color couleur1;
+                    Color couleur2;
+
+                    if (dijkstra && aStar) {
+                        couleur1 = COULEUR_DIJKSTRA;
+                        couleur2 = COULEUR_ASTAR;
+                    } else if (dijkstra && bfs) {
+                        couleur1 = COULEUR_DIJKSTRA;
+                        couleur2 = COULEUR_BFS;
+                    } else {
+                        couleur1 = COULEUR_ASTAR;
+                        couleur2 = COULEUR_BFS;
+                    }
+
+                    int[] xTriangle1 = {x, x + taille, x};
+
+                    int[] yTriangle1 = {y, y, y + taille};
+
+                    g2.setColor(couleur1);
+                    g2.fillPolygon(xTriangle1, yTriangle1, 3);
+
+                    int[] xTriangle2 = {x + taille, x + taille, x};
+
+                    int[] yTriangle2 = {y, y + taille, y + taille};
+
+                    g2.setColor(couleur2);
+                    g2.fillPolygon(xTriangle2, yTriangle2, 3);
+                } // Les trois algorithmes sur la même case
+                else {
+
+                    int largeurPartie = taille / 3;
+
+                    g2.setColor(COULEUR_DIJKSTRA);
+                    g2.fillRect(x, y, largeurPartie, taille);
+
+                    g2.setColor(COULEUR_ASTAR);
+                    g2.fillRect(x + largeurPartie, y, largeurPartie, taille);
+
+                    g2.setColor(COULEUR_BFS);
+                    g2.fillRect(x + largeurPartie * 2, y, taille - largeurPartie * 2, taille);
+                }
+            }
         }
     }
 
@@ -291,6 +394,63 @@ public class PanneauJeu extends JPanel {
         timerRecherche.start();
     }
 
+    // Anime Dijkstra, A* et BFS en même temps
+    public void animerRechercheSimultanee(ResultatRecherche resultatDijkstra, ResultatRecherche resultatAStar,
+            ResultatRecherche resultatBFS, Runnable finAnimation) {
+
+        // Active le mode comparaison
+        modeComparaison = true;
+
+        // Nettoie l'ancienne recherche
+        exploredNodes.clear();
+        exploredDijkstra.clear();
+        exploredAStar.clear();
+        exploredBFS.clear();
+        path.clear();
+
+        // Récupère l'exploration de chaque algorithme
+        List<Point> noeudsDijkstra = resultatDijkstra.getOrdreExploration();
+        List<Point> noeudsAStar = resultatAStar.getOrdreExploration();
+        List<Point> noeudsBFS = resultatBFS.getOrdreExploration();
+
+        // Position actuelle de chaque animation
+        final int[] indexDijkstra = {0};
+        final int[] indexAStar = {0};
+        final int[] indexBFS = {0};
+
+        timerRecherche = new Timer(50, e -> {
+
+            // Fait avancer chaque algorithme d'une case
+            if (indexDijkstra[0] < noeudsDijkstra.size()) {
+                exploredDijkstra.add(new Point(noeudsDijkstra.get(indexDijkstra[0])));
+                indexDijkstra[0]++;
+            }
+
+            if (indexAStar[0] < noeudsAStar.size()) {
+                exploredAStar.add(new Point(noeudsAStar.get(indexAStar[0])));
+                indexAStar[0]++;
+            }
+
+            if (indexBFS[0] < noeudsBFS.size()) {
+                exploredBFS.add(new Point(noeudsBFS.get(indexBFS[0])));
+                indexBFS[0]++;
+            }
+
+            repaint();
+
+            // Arrête l'animation quand les trois algorithmes ont terminé
+            if (indexDijkstra[0] >= noeudsDijkstra.size() && indexAStar[0] >= noeudsAStar.size() && indexBFS[0] >= noeudsBFS.size()) {
+                timerRecherche.stop();
+
+                if (finAnimation != null) {
+                    finAnimation.run();
+                }
+            }
+        });
+
+        timerRecherche.start();
+    }
+
     // Arrete les animations et reinitialise l'affichage de la recherche 
     public void reinitialiserRecherche() {
         if (timerRecherche != null && timerRecherche.isRunning()) {
@@ -303,6 +463,11 @@ public class PanneauJeu extends JPanel {
 
         exploredNodes.clear();
         path.clear();
+        // Nettoie aussi la recherche simultanée
+        exploredDijkstra.clear();
+        exploredAStar.clear();
+        exploredBFS.clear();
+        
         repaint();
     }
 

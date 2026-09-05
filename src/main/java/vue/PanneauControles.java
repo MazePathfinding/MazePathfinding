@@ -19,6 +19,8 @@ public class PanneauControles extends JPanel {
     private JButton boutonBFS;
     private JButton boutonLancer;
     private MoteurJeu.Algorithme algorithmeSelectionne = MoteurJeu.Algorithme.DIJKSTRA;
+    // Indique si on lance les trois algorithmes ensemble
+    private boolean modeComparaisonActif = false;
 
     public PanneauControles(PanneauJeu panneauJeu, FenetreJeu fenetre) {
         // Configuration du panneau gauche
@@ -183,9 +185,9 @@ public class PanneauControles extends JPanel {
             modeUnique.setBorder(BorderFactory.createLineBorder(bleu, 1));
 
             modeComparaison.setForeground(texteInactif);
-            modeComparaison.setBorder(
-                    BorderFactory.createLineBorder(new Color(45, 60, 80), 1)
-            );
+            modeComparaison.setBorder(BorderFactory.createLineBorder(new Color(45, 60, 80), 1));
+            // Retour au mode individuel
+            modeComparaisonActif = false;
             // Permet de choisir un algorithme en mode individuel
             boutonDijkstra.setEnabled(true);
             boutonAStar.setEnabled(true);
@@ -197,9 +199,9 @@ public class PanneauControles extends JPanel {
             modeComparaison.setBorder(BorderFactory.createLineBorder(bleu, 1));
 
             modeUnique.setForeground(texteInactif);
-            modeUnique.setBorder(
-                    BorderFactory.createLineBorder(new Color(45, 60, 80), 1)
-            );
+            modeUnique.setBorder(BorderFactory.createLineBorder(new Color(45, 60, 80), 1));
+            // Active le mode comparaison
+            modeComparaisonActif = true;
             // Aucun algorithme individuel ne peut être choisi en comparaison
             boutonDijkstra.setEnabled(false);
             boutonAStar.setEnabled(false);
@@ -270,8 +272,19 @@ public class PanneauControles extends JPanel {
             // Nettoie les anciens résultats
             fenetre.getPanneauResultats().reinitialiserResultats();
             fenetre.getPanneauResultats().setAlgorithmeActuel(algorithmeSelectionne);
-            ResultatRecherche resultat = moteurJeu.obtenirIndice(algorithmeSelectionne);
-            panneauJeu.animerRecherche(resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, () -> boutonLancer.setEnabled(true));
+            // Lance les trois algorithmes si on est en mode comparaison
+            if (modeComparaisonActif) {
+                ResultatRecherche resultatDijkstra = moteurJeu.obtenirIndice(MoteurJeu.Algorithme.DIJKSTRA);
+                ResultatRecherche resultatAStar = moteurJeu.obtenirIndice(MoteurJeu.Algorithme.A_STAR);
+                ResultatRecherche resultatBFS = moteurJeu.obtenirIndice(MoteurJeu.Algorithme.RECHERCHE_AVEUGLE);
+                panneauJeu.animerRechercheSimultanee(resultatDijkstra,resultatAStar,resultatBFS,() -> boutonLancer.setEnabled(true));
+
+            } else {
+                // Lance seulement l'algorithme choisi
+                fenetre.getPanneauResultats().setAlgorithmeActuel(algorithmeSelectionne);
+                ResultatRecherche resultat = moteurJeu.obtenirIndice(algorithmeSelectionne);
+                panneauJeu.animerRecherche(resultat.getOrdreExploration(),resultat.getChemin(),resultat,fenetre,() -> boutonLancer.setEnabled(true));
+            }
         });
 
         javax.swing.JButton boutonReinitialiser = new javax.swing.JButton("↻ Réinitialiser");
