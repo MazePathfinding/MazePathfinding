@@ -15,7 +15,6 @@ public class Main {
             Labyrinthe labyrinthe = new Labyrinthe();
             MoteurJeu moteurJeu = new MoteurJeu(labyrinthe);
 
-
             new FenetreJeu(moteurJeu);
         });
     }

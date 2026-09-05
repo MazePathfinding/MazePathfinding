@@ -35,12 +35,8 @@ public class frame extends JFrame {
      this.setLayout(new BorderLayout());
      
      //Texte en haut
-     label = new JLabel(
-             "<html><div style='text-align: center;'>"
-             +"Recherche le chemin plus court <br>"
-             +"Comparaison des 3 algorithmes"
-             +"</div></html>",
-             SwingConstants.CENTER);
+     label = new JLabel("<html><div style='text-align: center;'>" +"Recherche le chemin plus court <br>"
+             +"Comparaison des 3 algorithmes" +"</div></html>", SwingConstants.CENTER);
      label.setFont(new Font("Ariel", Font.BOLD,28));
      this.add(label, BorderLayout.NORTH);
      
@@ -67,12 +63,8 @@ public class frame extends JFrame {
          ResultatRecherche resultat = moteurJeu.obtenirIndice();
          
          //Animation de la recherche
-         panneauJeu.animerRecherche(
-                 resultat.getOrdreExploration(), 
-                 resultat.getChemin(), 
-                 resultat, 
-                 fenetre);
-      });
+         panneauJeu.animerRecherche(resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, null);
+     });
       
      this.setSize(615, 550);
      this.setLocationRelativeTo(null);
