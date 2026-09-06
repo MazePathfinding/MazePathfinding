@@ -61,7 +61,7 @@ public class frame extends JFrame {
 
             ResultatRecherche resultat = moteurJeu.obtenirIndice();
             //Animation de la recherche
-            panneauJeu.animerRecherche(resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, null);
+            panneauJeu.animerRecherche(MoteurJeu.Algorithme.DIJKSTRA, resultat.getOrdreExploration(), resultat.getChemin(), resultat, fenetre, null);
         });
 
         this.setSize(615, 550);
