@@ -3,6 +3,7 @@ package modele;
 import algo.Dijkstra;
 import algo.AStar;
 import algo.RechercheAveugle;
+import Database.DatabaseManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +20,8 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
         RECHERCHE_AVEUGLE
     }
 
-    private final Labyrinthe labyrinthe;
-    private final Joueur joueur;
+    private Labyrinthe labyrinthe;
+    private Joueur joueur;
     private Etat etat;
 
     public MoteurJeu(Labyrinthe labyrinthe) {
@@ -51,7 +52,7 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
                 resultat = AStar.calculerChemin(
                     labyrinthe.getObstacles(),
                     joueur.getPosition(),
-                    labyrinthe.getSortie(),
+                    labyrinthe.getSortie()
                 );
                 nomAlgorithme = "A*";
                 break;
@@ -87,6 +88,13 @@ public class MoteurJeu { // Reçoit les déplacements du joueur et met à jour l
     public void reinitialiser() {
         joueur.reinitialiser();
         etat = Etat.EN_COURS;
+    }
+
+    // Génère un TOUT NOUVEAU labyrinthe aléatoire, avec un joueur frais dessus
+    public void nouveauLabyrinthe() {
+        this.labyrinthe = new Labyrinthe();
+        this.joueur = new Joueur(labyrinthe);
+        this.etat = Etat.EN_COURS;
     }
 
     public Etat getEtat() {

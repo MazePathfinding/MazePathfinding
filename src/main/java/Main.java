@@ -1,3 +1,5 @@
+
+import Database.DatabaseManager;
 import javax.swing.SwingUtilities;
 import modele.Labyrinthe;
 import modele.MoteurJeu;
@@ -9,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        DatabaseManager.initialiser();
+        //DatabaseManager.initialiser();
 
         SwingUtilities.invokeLater(() -> {
 
@@ -18,6 +20,7 @@ public class Main {
             MoteurJeu moteurJeu = new MoteurJeu(labyrinthe);
 
             new FenetreJeu(moteurJeu);
+            DatabaseManager.initialiser();
         });
     }
 }

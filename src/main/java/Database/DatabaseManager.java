@@ -1,6 +1,7 @@
+package Database;
 
 import modele.ResultatRecherche;
-
+import io.github.cdimascio.dotenv.Dotenv;
 import java.awt.Point;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -10,30 +11,29 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class DatabaseManager {
 
-    
     private static final String DB_HOST = "localhost";
     private static final String DB_PORT = "5432";
     private static final String DB_NAME = "mazepathfinding";
-    private static final String DB_USER = "---------------";
-    private static final String DB_PASSWORD = "-----------"; 
+    private static final Dotenv dotenv = Dotenv.configure()
+            .ignoreIfMissing()
+            .load();
+    private static final String DB_USER = dotenv.get("DB_USER");
+    private static final String DB_PASSWORD = dotenv.get("DB_PASSWORD");
 
-    private static final String DB_URL =
-            "jdbc:postgresql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME;
+    private static final String DB_URL = "jdbc:postgresql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME;
 
-    
     private static Connection connecter() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
     public static void initialiser() {
-    
+
         String sql = "CREATE TABLE IF NOT EXISTS recherche_historique ("
                 + " id SERIAL PRIMARY KEY,"
                 + " algorithme TEXT NOT NULL,"
-                + " chemin TEXT NOT NULL,"         
+                + " chemin TEXT NOT NULL,"
                 + " longueur_chemin INTEGER NOT NULL,"
                 + " cout INTEGER NOT NULL,"
                 + " temps_execution_ms REAL NOT NULL,"
@@ -41,8 +41,7 @@ public class DatabaseManager {
                 + " date_recherche TEXT NOT NULL"
                 + ");";
 
-        try (Connection conn = connecter();
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = connecter(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
             System.err.println("Erreur d'initialisation de la base de données : " + e.getMessage());
@@ -55,8 +54,7 @@ public class DatabaseManager {
                 + "(algorithme, chemin, longueur_chemin, cout, temps_execution_ms, noeuds_explores, date_recherche) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = connecter();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = connecter(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, algorithme);
             ps.setString(2, serialiserChemin(resultat.getChemin()));
@@ -73,14 +71,11 @@ public class DatabaseManager {
         }
     }
 
-    
     public static List<HistoriqueRecherche> recupererHistorique() {
         List<HistoriqueRecherche> historique = new ArrayList<>();
         String sql = "SELECT * FROM recherche_historique ORDER BY id DESC";
 
-        try (Connection conn = connecter();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = connecter(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 historique.add(mapRow(rs));
@@ -92,13 +87,11 @@ public class DatabaseManager {
         return historique;
     }
 
-    
     public static List<HistoriqueRecherche> recupererHistoriqueParAlgorithme(String algorithme) {
         List<HistoriqueRecherche> historique = new ArrayList<>();
         String sql = "SELECT * FROM recherche_historique WHERE algorithme = ? ORDER BY id DESC";
 
-        try (Connection conn = connecter();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = connecter(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, algorithme);
             try (ResultSet rs = ps.executeQuery()) {
@@ -119,9 +112,7 @@ public class DatabaseManager {
                 + "WHERE rh.id = (SELECT MAX(id) FROM recherche_historique WHERE algorithme = rh.algorithme) "
                 + "ORDER BY rh.algorithme";
 
-        try (Connection conn = connecter();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = connecter(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 HistoriqueRecherche h = mapRow(rs);
@@ -134,24 +125,22 @@ public class DatabaseManager {
         return dernier;
     }
 
-
     public static void viderHistorique() {
         String sql = "DELETE FROM recherche_historique";
-        try (Connection conn = connecter();
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = connecter(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
             System.err.println("Erreur lors du vidage de l'historique : " + e.getMessage());
         }
     }
 
-    
-
     private static String serialiserChemin(List<Point> chemin) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < chemin.size(); i++) {
             Point p = chemin.get(i);
-            if (i > 0) sb.append(";");
+            if (i > 0) {
+                sb.append(";");
+            }
             // "," ne peut pas apparaître dans un entier, contrairement à "-" qui est
             // aussi le signe négatif : "-1-2" serait ambigu à la relecture.
             sb.append(p.x).append(",").append(p.y);
@@ -161,7 +150,9 @@ public class DatabaseManager {
 
     private static List<Point> deserialiserChemin(String texte) {
         List<Point> chemin = new ArrayList<>();
-        if (texte == null || texte.isEmpty()) return chemin;
+        if (texte == null || texte.isEmpty()) {
+            return chemin;
+        }
         for (String morceau : texte.split(";")) {
             String[] xy = morceau.split(",");
             if (xy.length != 2) {
@@ -177,7 +168,6 @@ public class DatabaseManager {
         return chemin;
     }
 
-    
     private static HistoriqueRecherche mapRow(ResultSet rs) throws SQLException {
         return new HistoriqueRecherche(
                 rs.getInt("id"),
